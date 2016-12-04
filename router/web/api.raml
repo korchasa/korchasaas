@@ -1,0 +1,83 @@
+#%RAML 1.0
+title: korchasa API
+version: v1
+baseUri: http://korchasa.host/api/v1
+protocols: [ HTTPS, HTTP ]
+mediaType: application/json
+securedBy: [ null ]
+types:
+  Job:
+    properties:
+      author: string
+      kind: string
+      status: string
+  NewJob:
+    type: Job
+    properties:
+      callback: string
+      params: string
+  CompletedJob:
+    type: Job
+    properties:
+      start: date-only
+      end: date-only
+      result: string
+/status:
+  get:
+    responses:
+      200:
+        body:
+          properties:
+            name: string
+            role: string
+            category: string
+            icon: string
+            location:
+              properties:
+                city: string
+                coutryCode: string
+            description: string
+            links:
+              type: array
+              items:
+                properties:
+                  network: string
+                  url: string
+            locales:
+              type: array
+              items:
+                properties:
+                  language: string
+                  fluency: string
+/jobs_queue:
+  get:
+    responses:
+      200:
+        body:
+          type: (CompletedJob | NewJob)[]
+  post:
+    body:
+      type: NewJob
+    responses:
+      200:
+        body:
+          properties:
+            id: string
+/jobs_queue/{id}:
+    put:
+      body:
+        type: NewJob
+      responses:
+        200:
+          body:
+            type: string[]
+/features:
+  get:
+    body:
+      properties:
+        //:
+          type: number
+    responses:
+      200:
+        body:
+            type: string[]

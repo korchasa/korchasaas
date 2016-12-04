@@ -1,0 +1,7 @@
+version: '2'
+services:
+  router:
+    volumes:
+      - ./router/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+      - ./router/proxy.lua:/usr/local/openresty/nginx/proxy.lua
+      - ./router/web:/var/www

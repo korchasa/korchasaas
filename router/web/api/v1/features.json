@@ -1,0 +1,30 @@
+{
+  "data": {
+    "OOP/OOD": 0.90,
+    "PHP": 0.95,
+    "Test driven development (TDD)": 0.90,
+    "Automated Testing (QA)": 0.85,
+    "HTTP API": 0.85,
+    "MVC/MVVM/MVP": 0.85,
+    "Continuous Integration": 0.7,
+    "Databases": 0.8,
+    "Design Patterns": 0.8,
+    "Highload": 0.7,
+    "JavaScript": 0.7,
+    "Linux": 0.8,
+    "Lua": 0.6,
+    "Networking": 0.6,
+    "Project Management": 0.75,
+    "Quality Assurance (QA)": 0.8,
+    "Agile": 0.7,
+    "Golang": 0.5,
+    "Java": 0.5,
+    "NoSQL": 0.7,
+    "Team management": 0.8,
+    "User Experience (UX)": 0.6,
+    "Product management": 0.7,
+    "Python": 0.5
+  },
+  "error": "",
+  "status": 200
+}

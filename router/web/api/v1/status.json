@@ -1,0 +1,35 @@
+{
+    "data": {
+        "name": "Korchagin Stanislav",
+        "role": "Team Lead / Tech Lead / CTO",
+        "category": "IT",
+        "location": {
+            "city": "Kiev",
+            "countryCode": "UA"
+        },
+        "description": "Успешно разрабатывал две(или три) социальные сети, пару CRM-систем, одну BPM, пару платежных витрин с генератором, генератор магазинов, несколько поисковых систем для больших порталов, организовывал отдел разработок, строил релиз-циклы и процессы разработки. А, еще один маленький CDN. Переставать программировать не готов.\n\n      - Управление программистами, требованиями и процессами\n      - Много php, немного java, python, lua, go, etc\n      - Design patterns, OOP, TDD, KISS, YAGNI и другие страшные аббревиатуры\n      - Unit-тесты, приемочное тестирование, стресс тестирование, проверка серверов на пылестойкость и ударопрочность\n      - Извращенные архитектуры, многопоточность, межмашинковое взаимодействие, api, события, масштабирование вширь и вглубь, алгоритмы под данные, данные под задачи, очереди, map/reduce, hash tables, нарезка базы кубиками и колечками\n      - Извращенные архитектуры, многопоточность, межмашинковое взаимодействие, алгоритмы под данные, данные под задачи, очереди, map/reduce, hash tables, нарезка базы кубиками и колечками\n      - Данные больше 100Gb и хиты больше 10M\n      ",
+        "icon": "https://lh3.googleusercontent.com/O6pzfqAmTVKoAjmiqzK-hd5hZ4xTKnyHZoeCUplAT1D2SQZVMovlLOe8uTxJKtlSLO7Bsx0Mw8cc=w665-h1000-no",
+        "links": [
+            {
+                "network": "Twitter",
+                "url": "https://twitter.com/korchasa"
+            },
+            {
+                "network": "Github",
+                "url": "https://github.com/korchasa"
+            }
+        ],
+        "locales": [
+            {
+                "fluency": "Native speaker",
+                "language": "Russian"
+            },
+            {
+                "fluency": "Чтение документации, переписка, называние переменных",
+                "language": "English"
+            }
+        ]
+    },
+    "error": "",
+    "status": 200
+}

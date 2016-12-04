@@ -1,0 +1,7 @@
+version: '2'
+services:
+  router:
+    build: ./router
+    mem_limit: 64m
+    ports:
+      - "80:80"
