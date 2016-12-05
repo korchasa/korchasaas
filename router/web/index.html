@@ -17,58 +17,39 @@
 <body ng-app="ramlConsoleApp" ng-cloak class="raml-console-body">
   <!-- <raml-initializer disable-theme-switcher></raml-initializer> -->
   <div class="raml-console-error-container raml-console-error-primary ng-isolate-scope">
-  <h1>korchasa API</h1>
+  <h1>korchasa as a service</h1>
   <article>
-    <h2>Что это?</h2>
-    <p>Это korchasa, то есть меня - API. Текущий статус, фичи, очередь джобов.</p>
+    <h2>???</h2>
+    <p>This is my API. Current state, features, jobs queue. Assembled from openresty, lua, python, go, raml, airtable and docker with glue and sticks.</p>
 
-    <h2>Эээ, ок. А зачем?</h2>
-    <p>Потому что могу.</p>
+    <h2>But why?</h2>
+    <p>Because I can</p>
 
-    <h2>Туллинг</h2>
+    <h2>Tools</h2>
     <ul>
-      <li>Описание в RAML - <a href="http://korchasa.host/api/v1">тут</a></li>
-      <li>Песочница - см. ниже.</li>
-      <li>Телеграм-бот - <a href="https://telegram.me/korchasa_bot">@korchasa_bot</a>
-      <li>Файловая система - <a href="https://github.com/korchasa/korchasaas/tree/master/fs">на GitHub</a></li>
+      <li>Documentation please see below</li>
+      <li><a href="http://korchasa.host/api/v1">RAML</a></li>
+      <li><a href="https://telegram.me/korchasa_bot">Telegram bot</a>
+      <li><a href="https://github.com/korchasa/korchasaas/tree/master/fs">FUSE like a client</a></li>
+      <li><a href="https://airtable.com/shrwa3lkcG9um0lSo">Web form for new jobs</a>
     </ul>
-    <p>Ну сначала захотелось попробовать <a href="https://jsonresume.org/">JSON Resume</a>, а потом понеслось:<p>
-    <ul>
-      <li>
-        <h3>Что сейчас умеет NginScript?</h3>
-        <p>Оказывается, пока не особенно много. Пришлось писать на openresty+lua.</p>
-      </li>
-      <li>
-        <h3>А вот тут хостинг <a href="https://console.hyper.sh/register/invite/2WYLJ8d8x4IdYGRD8PrAS8neQPLnEkTD">hyper.sh</a> для docker завёлся, как он?</h3>
-        <p>В целом ок, но странные проблемы с docker-compose, типа непонимания <i>build</i></p>
-      </li>
-      <li>
-        <h3>Как дела у <a href="http://airtable.com">airtable</a>, на тему отказаться от backend на простых задачах?</h3>
-        <p>Ну если только на совсем простых. Мало типов, мало связей, мало контроля, нет событий.</p>
-      </li>
-      <li>
-        <h3>А почему бы не сделать telegram-бота на Google Apps Script?</h3>
-        <p>Google apps script оказалась стремной платформой. Слишком много требований, для универсального инструмента. Оказалось, что быстрее сделать бота на Go, чем тратить время на разрешения проблем с редиректами и гугловыми куками.</p>
-        <p>А вот и сам бот: <a href="https://telegram.me/korchasa_bot">@korchasa_bot</a>.</p>
-      </li>
-      <li>
-        <h3>А почему бы не написать файловую систему на <a href="https://github.com/terencehonles/fusepy">fusepy</a>, которая будет ходить по API?</h3>
-        <p>Оказалось на удивление просто.</p>
-      </li>
-    </ul>
-    <p>В итоге получился
   </article>
   </div>
 
 </div>
   <raml-console-loader
+    id="sandbox"
     src="/api.raml"
     options="{
       disableRamlClientGenerator: true,
       disableThemeSwitcher: true,
       disableTryIt: false,
       resourcesCollapsed: false,
-      disableTitle: true
+      disableTitle: true,
+      allowUnsafeMarkdown: true,
+      disableTitle: false,
+      documentationCollapsed: true,
+      singleView: false
     }">
     ></raml-console-loader>
   <script src="console/scripts/api-console-vendor.js"></script>
