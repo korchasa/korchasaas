@@ -5,3 +5,6 @@ services:
       - ./router/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
       - ./router/proxy.lua:/usr/local/openresty/nginx/proxy.lua
       - ./router/web:/var/www
+  bot:
+    environment:
+      - TELEGRAM_TOKEN=281100618:AAHJgIz2rbj0T1Pk7VOkE8Mf8bwECi94Ies
