@@ -6,78 +6,197 @@ protocols: [ HTTPS, HTTP ]
 mediaType: application/json
 securedBy: [ null ]
 types:
-  Job:
+  Response:
     properties:
-      author: string
-      kind: string
-      status: string
+      status:
+        description: HTTP status code
+        type: integer
+      error:
+        description: Error string
+        type: string
+      data:
+        description: Payload
+        type: object | array
+  Job:
+    description: Base job type
+    properties:
+      author:
+        description: Employer (e.g. Slack, AirBnb, etc)
+        type: string
+      kind:
+        description: Position (e.g. Teach lead)
+        type: string
   NewJob:
+    description: New job offer
     type: Job
     properties:
-      callback: string
-      params: string
+      callback:
+        description: Email, url or other contact information
+        type: string
+      params:
+        description: Any text (e.g. requirements, skills, etc)
+        type: string
   CompletedJob:
     type: Job
     properties:
       start: date-only
-      end: date-only
+      finish: date-only
       result: string
 /status:
+  displayName: Status
   get:
+    description: Get status info
     responses:
       200:
         body:
-          properties:
-            name: string
-            role: string
-            category: string
-            icon: string
-            location:
-              properties:
-                city: string
-                coutryCode: string
-            description: string
-            links:
-              type: array
-              items:
+          body:
+            type: Response
+            properties:
+              data:
                 properties:
-                  network: string
-                  url: string
-            locales:
-              type: array
-              items:
-                properties:
-                  language: string
-                  fluency: string
+                  name: string
+                  role: string
+                  category: string
+                  icon: string
+                  location:
+                    properties:
+                      city: string
+                      coutryCode: string
+                  description: string
+                  links:
+                    type: array
+                    items:
+                      properties:
+                        network: string
+                        url: string
+                  locales:
+                    type: array
+                    items:
+                      properties:
+                        language: string
+                        fluency: string
 /jobs_queue:
+  displayName: Jobs queue
   get:
+    description: All jobs
     responses:
       200:
         body:
-          type: (CompletedJob | NewJob)[]
+          example: |
+            {
+              "data": [
+                  {
+                      "author": "Мегаплан",
+                      "counter": 1,
+                      "finish": "2016-12-10",
+                      "kind": "Принципиальный инженер",
+                      "result": "\n- помог техническим партнерам в их стремлении дергать из нас данные",
+                      "start": "2015-10-01",
+                      "status": "finished"
+                  },
+                  {
+                      "author": "some author",
+                      "callback": "mailme@maybe.com",
+                      "counter": 30,
+                      "kind": "programmer",
+                      "params": "some params",
+                      "status": "new"
+                  }
+              ],
+              "error": "",
+              "status": 200
+            }
+          type: Response
+          properties:
+            data:
+              type: array
+              items:
+                type: CompletedJob | NewJob
+                properties:
+                  status: string
   post:
+    description: Create new job
     body:
       type: NewJob
+      example: |
+        {
+            "author": "some author",
+            "callback": "mailme@maybe.com",
+            "kind": "programmer",
+            "params": "some params"
+        }
     responses:
       200:
         body:
+          type: Response
           properties:
-            id: string
-/jobs_queue/{id}:
+            data:
+              properties:
+                id:
+                  description: Created job identifier
+                  type: string
+          example: |
+            {
+              "data": {
+                  "id": "aHwyd"
+              },
+              "error": "",
+              "status": 200
+            }
+  /{id}:
+    uriParameters:
+      id:
+        description: identifier from POST /jobs_queue response
+        type: string
+        example: aHwyd
     put:
+      description: Edit job properties by identifier
       body:
         type: NewJob
+        example: |
+          {
+              "author": "some author",
+              "callback": "mailme@maybe.com",
+              "kind": "programmer",
+              "params": "some params"
+          }
       responses:
         200:
           body:
-            type: string[]
+            type: Response
+            properties:
+              data:
+                properties:
+                  id:
+                    description: Updated job identifier
+                    type: string
+            example: |
+              {
+                "data": {
+                    "id": "aHwyd"
+                },
+                "error": "",
+                "status": 200
+              }
 /features:
+  displayName: Features
   get:
-    body:
-      properties:
-        //:
-          type: number
+    description: Hashmap with features as a key and skill-score as a value
     responses:
       200:
         body:
-            type: string[]
+          type: Response
+          properties:
+            data:
+              properties:
+                //:
+                  type: number
+          example: |
+            {
+              "data": {
+                  "Agile": 0.7,
+                  "Automated Testing (QA)": 0.85
+              },
+              "error": "",
+              "status": 200
+            }
