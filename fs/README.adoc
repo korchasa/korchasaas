@@ -1,0 +1,63 @@
+# File-system client 
+
+How to run on OS X:
+```sh
+$ virtualenv -p /usr/local/bin/python3 py3env
+    Running virtualenv with interpreter /usr/local/bin/python3
+    Using base prefix '/usr/local/Cellar/python3/3.5.2_3/Frameworks/Python.framework/Versions/3.5'
+    New python executable in /www/korchasaas/fs/py3env/bin/python3.5
+    Also creating executable in /www/korchasaas/fs/py3env/bin/python
+    Installing setuptools, pip, wheel...done.
+$ source py3env/bin/activate
+$ pip install -r ./requirements.txt
+    Collecting fusepy (from -r ./requirements.txt (line 1))
+      Using cached fusepy-2.0.4.tar.gz
+    ...
+    Successfully installed defaultenv-0.0.3 fusepy-2.0.4 requests-2.12.3 var-dump-1.1
+$ python mount.py /tmp/myapifs
+    DEBUG:fuse.log-mixin:-> init / ()
+    DEBUG:fuse.log-mixin:<- init None
+    DEBUG:fuse.log-mixin:-> statfs / ()
+    DEBUG:fuse.log-mixin:-> getattr / (None,)
+    DEBUG:fuse.log-mixin:<- statfs {'f_blocks': 4096, 'f_bavail': 2048, 'f_bsize': 512}
+    ...
+```
+
+And check:
+```sh
+$ ls -la /tmp/myapifs
+    total 0
+    drwxr-xr-x   2 root  wheel    0  6 дек 17:37 .
+    drwxrwxrwt  16 root  wheel  544  6 дек 17:37 ..
+    drwxr-xr-x   2 root  wheel    0  6 дек 17:37 features
+    drwxr-xr-x   2 root  wheel    0  6 дек 17:37 jobs_queue
+    drwxr-xr-x   2 root  wheel    0  6 дек 17:37 status
+$ ls -la /tmp/myapifs/status
+    total 72
+    drwxr-xr-x  2 root  wheel     0  6 дек 17:37 .
+    drwxr-xr-x  2 root  wheel     0  6 дек 17:37 ..
+    -rw-r--r--  1 root  wheel     4  6 дек 17:37 category
+    -rw-r--r--  1 root  wheel  1883  6 дек 17:37 description
+    -rw-r--r--  1 root  wheel   126  6 дек 17:37 icon
+    -rw-r--r--  1 root  wheel   154  6 дек 17:37 links
+    -rw-r--r--  1 root  wheel   222  6 дек 17:37 locales
+    -rw-r--r--  1 root  wheel    43  6 дек 17:37 location
+    -rw-r--r--  1 root  wheel    21  6 дек 17:37 name
+    -rw-r--r--  1 root  wheel  1144  6 дек 17:37 request
+    -rw-r--r--  1 root  wheel    29  6 дек 17:37 role
+$ cat /tmp/myapifs/status
+    cat: /tmp/myapifs/status: Is a directory
+$ cat /tmp/myapifs/status/links
+    [
+      {
+        "network": "Twitter",
+        "url": "https://twitter.com/korchasa"
+      },
+      {
+        "network": "Github",
+        "url": "https://github.com/korchasa"
+      }
+    ]
+$ cat /tmp/myapifs/status/request
+#0 object(PreparedRequest) (7)    body => NoneType(None)     _body_position => NoneType(None)     _cookies => object(RequestsCookieJar) (4)        _now => int(1481035056)         _cookies_lock => object(RLock) (<unlocked _thread.RLock object owner=0 count=0 at 0x1083d0db0>)        _cookies => dict(0)         _policy => object(DefaultCookiePolicy) (13)            _now => int(1481035056)             rfc2109_as_netscape => NoneType(None)             strict_ns_set_initial_dollar => bool(False)             strict_ns_set_path => bool(False)             strict_ns_domain => int(0)             _blocked_domains => tuple(0)             strict_ns_unverifiable => bool(False)             _allowed_domains => NoneType(None)             netscape => bool(True)             strict_domain => bool(False)             strict_rfc2965_unverifiable => bool(True)             rfc2965 => bool(False)             hide_cookie2 => bool(False)     headers => object(CaseInsensitiveDict) (1)        _store => object(OrderedDict) (0)    method => str(3) "GET"    hooks => dict(1)         ['response'] => list(0)     url => str(34) "http://korchasa.host/api/v1/status"
+```
