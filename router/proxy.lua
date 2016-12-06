@@ -31,7 +31,7 @@ function error(message, code)
 end
 
 r:get('/api/v1/jobs_queue', function(params)
-  res = ngx.location.capture("/airtableJob")
+  res = ngx.location.capture("/airtableJob?view=Valid&fields%5B%5D=author&fields%5B%5D=kind&fields%5B%5D=start&fields%5B%5D=finish&fields%5B%5D=result&fields%5B%5D=status&fields%5B%5D=callback&fields%5B%5D=params")
   res_data = (rapidjson.decode(res.body))
   if res.status ~= 200 then
     return error(res_data.error.message, 400)
@@ -63,7 +63,7 @@ r:post('/api/v1/jobs_queue', function(params)
     body = rapidjson.encode({fields = req}),
   })
 
-  res_data = (json.decode(res.body))
+  res_data = (rapidjson.decode(res.body))
   if res.status ~= 200 then
     return error(res_data.error.message, 400)
   else
