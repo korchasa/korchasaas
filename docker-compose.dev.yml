@@ -5,6 +5,8 @@ services:
       - ./router/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
       - ./router/proxy.lua:/usr/local/openresty/nginx/proxy.lua
       - ./router/web:/var/www
+    environment:
+      - AIRTABLE_TOKEN=keyzWI8b0EYT1H3DW
   bot:
     environment:
-      - TELEGRAM_TOKEN=281100618:AAHJgIz2rbj0T1Pk7VOkE8Mf8bwECi94Ies
+      - TELEGRAM_TOKEN=281100618:AAFHJT2R05SXMPXZYMMldj3HqH_2Kpq6nKM
