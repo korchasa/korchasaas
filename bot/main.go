@@ -98,9 +98,13 @@ func (call *Call) ActionQueueList() tgbotapi.MessageConfig {
 }
 
 func getAsText(url string) string {
-	resp, _ := http.Get("http://korchasa.host/api/v1/" + url)
+	fullUrl := "http://" + os.Getenv("API_HOST") + "/api/v1/" + url
+	log.Printf("Request started %s", fullUrl)
+	resp, _ := http.Get(fullUrl)
 
 	defer resp.Body.Close()
+
+	log.Printf("Request finished %s", fullUrl)
 
 	bytes, _ := ioutil.ReadAll(resp.Body)
 
