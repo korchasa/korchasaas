@@ -41,6 +41,7 @@ ARG _RESTY_CONFIG_DEPS="--with-openssl=/tmp/openssl-${RESTY_OPENSSL_VERSION} --w
 RUN \
     DEBIAN_FRONTEND=noninteractive apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        cmake \
         build-essential \
         ca-certificates \
         curl \
@@ -86,6 +87,7 @@ RUN \
     && ln -sf /dev/stderr /usr/local/openresty/nginx/logs/error.log
 
 RUN /usr/local/openresty/luajit/bin/luarocks install router
+RUN /usr/local/openresty/luajit/bin/luarocks install rapidjson
 
 ADD nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
 ADD proxy.lua /usr/local/openresty/nginx/proxy.lua

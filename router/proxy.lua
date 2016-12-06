@@ -1,5 +1,5 @@
 local router = require 'router'
-local json = require "cjson.safe"
+local rapidjson = require 'rapidjson'
 local r = router.new()
 
 function split(inputstr, sep)
@@ -32,7 +32,7 @@ end
 
 r:get('/api/v1/jobs_queue', function(params)
   res = ngx.location.capture("/airtableJob")
-  res_data = (json.decode(res.body))
+  res_data = (rapidjson.decode(res.body))
   if res.status ~= 200 then
     return error(res_data.error.message, 400)
   else
@@ -46,7 +46,7 @@ end)
 
 r:post('/api/v1/jobs_queue', function(params)
 
-  local req, err = json.decode(ngx.req.get_body_data())
+  local req, err = rapidjson.decode(ngx.req.get_body_data())
 
   if req == nil then req = {} end
 
@@ -60,7 +60,7 @@ r:post('/api/v1/jobs_queue', function(params)
 
   res = ngx.location.capture("/airtableJob", {
     method = ngx.HTTP_POST,
-    body = json.encode({fields = req}),
+    body = rapidjson.encode({fields = req}),
   })
 
   res_data = (json.decode(res.body))
@@ -74,7 +74,7 @@ end)
 
 r:put('/api/v1/jobs_queue/:id', function(params)
 
-  local req, err = json.decode(ngx.req.get_body_data())
+  local req, err = rapidjson.decode(ngx.req.get_body_data())
 
   if req == nil then req = {} end
 
@@ -86,10 +86,10 @@ r:put('/api/v1/jobs_queue/:id', function(params)
 
   res = ngx.location.capture("/airtableJob/" .. params.id, {
       method = ngx.HTTP_PUT,
-      body = json.encode({ fields = req })
+      body = rapidjson.encode({ fields = req })
   })
 
-  res_data = (json.decode(res.body))
+  res_data = (rapidjson.decode(res.body))
   if res.status ~= 200 then
     return error(res_data.error.message, 400)
   else
@@ -112,11 +112,11 @@ end
 ngx.status = result.status
 
 if 400 > result.status then
-  ngx.print(json.encode(result))
+  ngx.print(rapidjson.encode(result, {pretty = true}))
 else
-  ngx.print(json.encode({
+  ngx.print(rapidjson.encode({
     status = result.status,
     error = result.error
-  }))
+  }, {pretty = true}))
   ngx.log(ngx.ERR, result.error)
 end
