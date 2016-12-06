@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"bytes"
 )
 
 type Call struct {
@@ -119,21 +120,23 @@ func tree2plain(m interface{}, prefix string) string {
 	switch vv := m.(type) {
 
 	case string:
-		text += prefix + vv + "\n"
+		text += vv
 
 	case int:
 	case int64:
-		text += prefix + strconv.FormatInt(vv, 10) + "\n"
+		text += strconv.FormatInt(vv, 10)
 
 	case float64:
-		text += prefix + strconv.FormatFloat(vv, 'f', -1, 32) + "\n"
+		text += strconv.FormatFloat(vv, 'f', -1, 32)
 
 	case []interface{}:
+		text += "\n"
 		for _, u := range vv {
-			text += prefix + tree2plain(u, prefix+"    ")
+			text += tree2plain(u, prefix+"    ") + "\n"
 		}
 
 	case map[string]interface{}:
+		text += "\n"
 		mk := make([]string, len(vv))
 		i := 0
 		for k, _ := range vv {
@@ -142,16 +145,24 @@ func tree2plain(m interface{}, prefix string) string {
 		}
 		sort.Strings(mk)
 
-		text += "\n"
 		for _, k := range mk {
 			v := vv[k]
-			text += prefix + "*" + k + "*:  " + tree2plain(v, prefix+"    ")
+			text += prefix + "*" + upperFirstLetter(k) + "*: " + tree2plain(v, prefix+"    ") + "\n"
 		}
 	default:
 		log.Printf("Type (%T) I don't know how to handle", vv)
 	}
 
-	return text
+	return strings.Replace(text, "\n\n", "\n", -1)
+}
+
+func upperFirstLetter(s string) string {
+	bts := []byte(s)
+
+  lc := bytes.ToUpper([]byte{bts[0]})
+  rest := bts[1:]
+
+  return string(bytes.Join([][]byte{lc, rest}, nil))
 }
 
 func main() {
@@ -173,5 +184,10 @@ func main() {
 		msg := call.Action()
 		msg.ParseMode = "markdown"
 		bot.Send(msg)
+		if update.CallbackQuery != nil {
+			bot.AnswerCallbackQuery(tgbotapi.CallbackConfig{
+				CallbackQueryID: update.CallbackQuery.ID,
+			})
+		}
 	}
 }
