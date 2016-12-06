@@ -2,30 +2,156 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"gopkg.in/telegram-bot-api.v4"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 	"os"
+	"sort"
+	"strconv"
+	"strings"
 )
 
-type JobResponse struct {
-	Jobs   []Job  `json:"data"`
-	Status int    `json:"status"`
-	Error  string `json:"error"`
+type Call struct {
+	ChatId  int64
+	Action  func() tgbotapi.MessageConfig
+	Payload map[string]interface{}
+	Update  tgbotapi.Update
 }
 
-type Job struct {
-	Author   string `json:"author"`
-	Finish   string `json:"finish"`
-	Kind     string `json:"kind"`
-	Result   string `json:"result"`
-	Start    string `json:"start"`
-	Status   string `json:"status"`
-	Callback string `json:"callback"`
-	Params   string `json:"params"`
+func (call *Call) DefaultKeyb() tgbotapi.InlineKeyboardMarkup {
+	return tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData("Status", "status%%{}"),
+			tgbotapi.NewInlineKeyboardButtonData("Features", "features%%{}"),
+			tgbotapi.NewInlineKeyboardButtonData("Jobs queue", "queue_list%%{}"),
+		),
+	)
+}
+
+func NewCall(update tgbotapi.Update) *Call {
+
+	i := new(Call)
+	i.Update = update
+
+	if update.CallbackQuery != nil {
+		i.ChatId = update.CallbackQuery.Message.Chat.ID
+	} else if update.Message != nil {
+		i.ChatId = update.Message.Chat.ID
+	}
+
+	if update.CallbackQuery != nil {
+
+		parts := strings.Split(update.CallbackQuery.Data, "%%")
+
+		action, payloadJson := parts[0], parts[1]
+
+		json.Unmarshal([]byte(payloadJson), &i.Payload)
+
+		validActions := map[string]func() tgbotapi.MessageConfig{
+			"status":     i.ActionStatus,
+			"features":   i.ActionFeatures,
+			"queue_list": i.ActionQueueList,
+		}
+
+		i.Action = validActions[action]
+	} else {
+		i.Action = i.ActionDefault
+	}
+
+	return i
+}
+
+func (call *Call) ActionDefault() tgbotapi.MessageConfig {
+	msg := tgbotapi.NewMessage(
+		call.ChatId,
+		"Welcome to korchasa bot. What do you want to know?",
+	)
+	keyb := call.DefaultKeyb()
+	msg.ReplyMarkup = &keyb
+	return msg
+}
+
+func (call *Call) ActionStatus() tgbotapi.MessageConfig {
+	text := getAsText("status")
+	msg := tgbotapi.NewMessage(call.ChatId, text)
+	keyb := call.DefaultKeyb()
+	msg.ReplyMarkup = &keyb
+	return msg
+}
+
+func (call *Call) ActionFeatures() tgbotapi.MessageConfig {
+	text := getAsText("features")
+	msg := tgbotapi.NewMessage(call.ChatId, text)
+	keyb := call.DefaultKeyb()
+	msg.ReplyMarkup = &keyb
+	return msg
+}
+
+func (call *Call) ActionQueueList() tgbotapi.MessageConfig {
+	text := getAsText("jobs_queue")
+	msg := tgbotapi.NewMessage(call.ChatId, text)
+	keyb := call.DefaultKeyb()
+	msg.ReplyMarkup = &keyb
+	return msg
+}
+
+func getAsText(url string) string {
+	resp, _ := http.Get("http://korchasa.host/api/v1/" + url)
+
+	defer resp.Body.Close()
+
+	bytes, _ := ioutil.ReadAll(resp.Body)
+
+	var rawResp map[string]interface{}
+
+	if err := json.Unmarshal(bytes, &rawResp); err != nil {
+		return string(err.Error())
+	}
+
+	return tree2plain(rawResp["data"], "")
+}
+
+func tree2plain(m interface{}, prefix string) string {
+
+	var text string
+
+	switch vv := m.(type) {
+
+	case string:
+		text += prefix + vv + "\n"
+
+	case int:
+	case int64:
+		text += prefix + strconv.FormatInt(vv, 10) + "\n"
+
+	case float64:
+		text += prefix + strconv.FormatFloat(vv, 'f', -1, 32) + "\n"
+
+	case []interface{}:
+		for _, u := range vv {
+			text += prefix + tree2plain(u, prefix+"    ")
+		}
+
+	case map[string]interface{}:
+		mk := make([]string, len(vv))
+		i := 0
+		for k, _ := range vv {
+			mk[i] = k
+			i++
+		}
+		sort.Strings(mk)
+
+		text += "\n"
+		for _, k := range mk {
+			v := vv[k]
+			text += prefix + "*" + k + "*:  " + tree2plain(v, prefix+"    ")
+		}
+	default:
+		log.Printf("Type (%T) I don't know how to handle", vv)
+	}
+
+	return text
 }
 
 func main() {
@@ -40,126 +166,12 @@ func main() {
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
-
 	updates, err := bot.GetUpdatesChan(u)
 
-	defaultKeyb := tgbotapi.NewInlineKeyboardMarkup(
-		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("Status", "Status"),
-			tgbotapi.NewInlineKeyboardButtonData("Features", "Features"),
-			tgbotapi.NewInlineKeyboardButtonData("Jobs queue", "Jobs queue"),
-		),
-	)
-
 	for update := range updates {
-
-		if update.CallbackQuery != nil {
-			var msg tgbotapi.MessageConfig
-			chatId := update.CallbackQuery.Message.Chat.ID
-			// bot.Send(tgbotapi.NewChatAction(chatId, tgbotapi.ChatTyping))
-			switch update.CallbackQuery.Data {
-			case "Status":
-				text := getJsonMarkdown("status")
-				msg = tgbotapi.NewMessage(chatId, text)
-				msg.ReplyMarkup = &defaultKeyb
-			case "Features":
-				text := getJsonMarkdown("features")
-				msg = tgbotapi.NewMessage(chatId, text)
-				msg.ReplyMarkup = &defaultKeyb
-			case "Jobs queue":
-				resp, _ := http.Get("http://korchasa.host/api/v1/jobs_queue")
-				defer resp.Body.Close()
-
-				data, err := ioutil.ReadAll(resp.Body)
-
-				var jobResp JobResponse
-				if err == nil && data != nil {
-					json.Unmarshal(data, &jobResp)
-				}
-
-				text := "Jobs:\n"
-				for _, job := range jobResp.Jobs {
-					if job.Kind == "" || job.Author == "" {
-						continue
-					}
-					if job.Status == "finished" {
-						text += "*" + job.Kind + "* at _" + job.Author + "_\n"
-						text += "*Start/Finish*: " + job.Start + " / " + job.Finish + "\n"
-						text += "*Result*:\n" + job.Result + "\n"
-						text += "*Status*: " + job.Status + "\n"
-					} else {
-						text += "*" + job.Kind + "* at _" + job.Author + "_\n"
-						text += "*Params*: " + job.Params + "\n"
-						text += "*Status*: " + job.Status + "\n"
-					}
-					text += "\n\n"
-				}
-				log.Println(text)
-				msg = tgbotapi.NewMessage(chatId, text)
-				msg.ReplyMarkup = &defaultKeyb
-			}
-			msg.ParseMode = "markdown"
-			_, err = bot.Send(msg)
-			log.Printf("%#v", err)
-		} else if update.Message != nil {
-			msg := tgbotapi.NewMessage(
-				update.Message.Chat.ID,
-				"Welcome to korchasa bot. What do you want to know?",
-			)
-			jsonStr, _ := json.MarshalIndent(msg, "\t", "\t")
-			log.Println(string(jsonStr))
-			msg.ReplyMarkup = &defaultKeyb
-			_, err := bot.Send(msg)
-			log.Println(err)
-		}
-
-
+		call := NewCall(update)
+		msg := call.Action()
+		msg.ParseMode = "markdown"
+		bot.Send(msg)
 	}
-}
-
-func tree2plain(m map[string]interface{}, prefix string) string {
-	text := ""
-	for k, v := range m {
-		switch vv := v.(type) {
-		case string:
-			text += fmt.Sprintf("**%s**: %s", k, vv)
-		case int:
-			log.Println(k, "is int", vv)
-		case []interface{}:
-			log.Println(k, "is an array:")
-			for i, u := range vv {
-				log.Println(i, u)
-			}
-		default:
-			log.Println(k, "is of a type I don't know how to handle")
-		}
-	}
-	return text
-}
-
-func getJsonMarkdown(url string) string {
-	resp, _ := http.Get("http://korchasa.host/api/v1/" + url)
-
-	defer resp.Body.Close()
-
-	bytes, _ := ioutil.ReadAll(resp.Body)
-
-	text := string(bytes)
-	// replace with strings.NewReplacer
-	text = strings.Replace(text, "\\n", "\n", -1)
-	text = strings.Replace(text, "{", "", -1)
-	text = strings.Replace(text, "},\n", "", -1)
-	text = strings.Replace(text, "}", "", -1)
-	text = strings.Replace(text, "\"", "", -1)
-	text = strings.Replace(text, "[", "", -1)
-	text = strings.Replace(text, "],\n", "", -1)
-	text = strings.Replace(text, "]", "", -1)
-	text = strings.Replace(text, "error: ,", "", -1)
-	text = strings.Replace(text, "status: 200", "", -1)
-	text = strings.Replace(text, "data:", "", -1)
-	text = strings.Replace(text, ",\n", "\n", -1)
-	text = strings.Replace(text, "\n        ", "\n", -1)
-	text = strings.Replace(text, "    ", "  ", -1)
-
-	return string(text)
 }
