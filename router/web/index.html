@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>korchasa API</title>
-  <link href="console/styles/api-console-light-theme.css" rel="stylesheet" class="theme">
+  <link href="https://cdn.rawgit.com/mulesoft/api-console/v3.0.10/dist/styles/api-console-light-theme.css" rel="stylesheet" class="theme">
   <style>
     article {
       color: black;
@@ -15,7 +15,6 @@
   </style>
 </head>
 <body ng-app="ramlConsoleApp" ng-cloak class="raml-console-body">
-  <!-- <raml-initializer disable-theme-switcher></raml-initializer> -->
   <div class="raml-console-error-container raml-console-error-primary ng-isolate-scope">
   <h1>korchasa as a service</h1>
   <article>
@@ -36,12 +35,11 @@
     </ul>
   </article>
   </div>
-
 </div>
   <raml-console-loader
-    id="sandbox"
-    src="/api.raml"
-    options="{
+    id = "sandbox"
+    src = "api.raml"
+    options = "{
       disableRamlClientGenerator: true,
       disableThemeSwitcher: true,
       disableTryIt: false,
@@ -53,8 +51,8 @@
       singleView: false
     }">
     ></raml-console-loader>
-  <script src="console/scripts/api-console-vendor.js"></script>
-  <script src="console/scripts/api-console.js"></script>
+  <script src="https://cdn.rawgit.com/mulesoft/api-console/v3.0.10/dist/scripts/api-console-vendor.js"></script>
+  <script src="https://cdn.rawgit.com/mulesoft/api-console/v3.0.10/dist/scripts/api-console.js"></script>
   <script>
     $.noConflict();
   </script>
